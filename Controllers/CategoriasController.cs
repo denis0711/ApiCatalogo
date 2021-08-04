@@ -1,6 +1,6 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.Models;
-
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,20 +23,37 @@ namespace ApiCatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            return _context.Categorias.AsNoTracking().ToList();
+            try
+            {
+                return _context.Categorias.AsNoTracking().ToList();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao tentar");
+            }
+            
         }
 
         [HttpGet("{id}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categoria = _context.Categorias.AsNoTracking()
+
+            try
+            {
+                var categoria = _context.Categorias.AsNoTracking()
                 .FirstOrDefault(p => p.CategoriaId == id);
 
-            if (categoria == null)
+                if (categoria == null)
+                {
+                    return NotFound("Erro com o Id que voce pesquisou !");
+                }
+                return categoria;
+
+            } catch (Exception)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao tentar");
             }
-            return categoria;
+         
         }
 
         [HttpPost]
@@ -46,12 +63,19 @@ namespace ApiCatalogo.Controllers
             //{
             //    return BadRequest(ModelState);
             //}
+            try
+            {
+                _context.Categorias.Add(categoria);
+                _context.SaveChanges();
 
-            _context.Categorias.Add(categoria);
-            _context.SaveChanges();
-
-            return new CreatedAtRouteResult("ObterCategoria",
-                new { id = categoria.CategoriaId }, categoria);
+                return new CreatedAtRouteResult("ObterCategoria",
+                    new { id = categoria.CategoriaId }, categoria);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao criar uma Categoria");
+            }
+           
         }
 
         [HttpPut("{id}")]
@@ -61,29 +85,45 @@ namespace ApiCatalogo.Controllers
             //{
             //    return BadRequest(ModelState);
             //}
-            if (id != categoria.CategoriaId)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
-            return Ok();
+            try
+            {
+                if (id != categoria.CategoriaId)
+                {
+                    return BadRequest("Erro por Id nao existir");
+                }
+
+                _context.Entry(categoria).State = EntityState.Modified;
+                _context.SaveChanges();
+                return Ok("Categoria atualizada com Sucesso");
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao Atualizar uma Categoria");
+            }
         }
 
         [HttpDelete("{id}")]
         public ActionResult<Categoria> Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
-            //var categoria = _context.Categorias.Find(id);
-
-            if (categoria == null)
+            try
             {
-                return NotFound();
+                var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+                //var categoria = _context.Categorias.Find(id);
+
+                if (categoria == null)
+                {
+                    return NotFound("Erro ao deletar a Categoria");
+                }
+                _context.Categorias.Remove(categoria);
+                _context.SaveChanges();
+                return categoria;
             }
-            _context.Categorias.Remove(categoria);
-            _context.SaveChanges();
-            return categoria;
+            catch(Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao Deletar uma Categoria");
+            }
+            
         }
     }
 }
