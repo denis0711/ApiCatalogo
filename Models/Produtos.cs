@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiCatalogo.Validations;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace ApiCatalogo.Models
 
         [Required]
         [StringLength(80,ErrorMessage ="O Campo deve ter no maximo 80 caracteres")]
+        [PrimeiraLetraMaiuscula]
         public string Nome { get; set; }
 
         [Required]
