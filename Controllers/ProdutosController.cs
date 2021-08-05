@@ -22,20 +22,20 @@ namespace ApiCatalogo.Controllers
 
         [HttpGet]
 
-        public ActionResult<IEnumerable<Produto>> Get()
+        public async Task<ActionResult<IEnumerable<Produto>>> Get()
         {
             //AsNoTracking desabilita o gerenciamento do estado das entidades
             //so deve ser usado em consultas sem alteração
 
-            return _context.Produtos.AsNoTracking().ToList();
+            return await _context.Produtos.AsNoTracking().ToListAsync();
         }
 
 
         //Teve que colocar isso para nao da sobrecarga com os metodos com os mesmo nome e rota
         [HttpGet("{id}", Name ="ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        public async Task<ActionResult<Produto>> Get(int id)
         {
-            var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.Id == id);
+            var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
 
             if(produto == null)
             {
