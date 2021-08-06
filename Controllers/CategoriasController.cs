@@ -1,5 +1,6 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.Models;
+using ApiCatalogo.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,18 +15,23 @@ namespace ApiCatalogo.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly MeuDbContext _context;
-        public CategoriasController(MeuDbContext contexto)
+        private readonly IUnitOfWork _uof;
+        public CategoriasController(IUnitOfWork contexto)
         {
-            _context = contexto;
+            _uof = contexto;
         }
 
+        [HttpGet]
+        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
+        {
+            return _uof._categoriaRepository.GetCategoriasProdutos().ToList();
+        }
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
             try
             {
-                return _context.Categorias.AsNoTracking().ToList();
+                return _uof._categoriaRepository.Get().ToList();
             }
             catch (Exception)
             {
@@ -40,8 +46,7 @@ namespace ApiCatalogo.Controllers
 
             try
             {
-                var categoria = _context.Categorias.AsNoTracking()
-                .FirstOrDefault(p => p.CategoriaId == id);
+                var categoria = _uof._categoriaRepository.GetBydId(c => c.CategoriaId == id);
 
                 if (categoria == null)
                 {
@@ -65,8 +70,8 @@ namespace ApiCatalogo.Controllers
             //}
             try
             {
-                _context.Categorias.Add(categoria);
-                _context.SaveChanges();
+                _uof._categoriaRepository.Add(categoria);
+                _uof.Commit();
 
                 return new CreatedAtRouteResult("ObterCategoria",
                     new { id = categoria.CategoriaId }, categoria);
@@ -93,8 +98,8 @@ namespace ApiCatalogo.Controllers
                     return BadRequest("Erro por Id nao existir");
                 }
 
-                _context.Entry(categoria).State = EntityState.Modified;
-                _context.SaveChanges();
+                _uof._categoriaRepository.Update(categoria);
+                _uof.Commit();
                 return Ok("Categoria atualizada com Sucesso");
             }
             catch (Exception)
@@ -108,15 +113,15 @@ namespace ApiCatalogo.Controllers
         {
             try
             {
-                var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
-                //var categoria = _context.Categorias.Find(id);
+                var categoria = _uof._categoriaRepository.GetBydId(c => c.CategoriaId == id);
+                    //var categoria = _uof.Categorias.Find(id);
 
                 if (categoria == null)
                 {
                     return NotFound("Erro ao deletar a Categoria");
                 }
-                _context.Categorias.Remove(categoria);
-                _context.SaveChanges();
+                _uof._categoriaRepository.Delete(categoria);
+                _uof.Commit();
                 return categoria;
             }
             catch(Exception)
