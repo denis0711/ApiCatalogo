@@ -31,6 +31,8 @@ namespace ApiCatalogo
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            services.AddAutoMapper(typeof(Startup));
+
             services.AddDbContext<MeuDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
