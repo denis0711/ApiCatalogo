@@ -29,11 +29,11 @@ namespace ApiCatalogo.Controllers
         [HttpGet("menorpreco")]
         public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosPorPreco()
         {
-           var produtos=  _uof._produtoRepository.GetProdutosPorPreco().ToList();
-           var produtosDto = _mapper.Map<List<ProdutoDTO>>(produtos);
+            var produtos = _uof._produtoRepository.GetProdutosPorPreco().ToList();
+            var produtosDto = _mapper.Map<List<ProdutoDTO>>(produtos);
 
             return produtosDto;
-           
+
 
         }
 
@@ -52,23 +52,23 @@ namespace ApiCatalogo.Controllers
 
 
         //Teve que colocar isso para nao da sobrecarga com os metodos com os mesmo nome e rota
-        [HttpGet("{id}", Name ="ObterProduto")]
+        [HttpGet("{id}", Name = "ObterProduto")]
         public ActionResult<ProdutoDTO> Get(int id)
         {
-            var produto = _uof._produtoRepository.GetBydId(p=>p.Id == id);
+            var produto = _uof._produtoRepository.GetBydId(p => p.Id == id);
 
-            if(produto == null)
+            if (produto == null)
             {
                 return NotFound();
             }
 
-            var produtoDto= _mapper.Map<ProdutoDTO>(produto);
+            var produtoDto = _mapper.Map<ProdutoDTO>(produto);
 
             return produtoDto;
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody]ProdutoDTO produtoDto)
+        public ActionResult Post([FromBody] ProdutoDTO produtoDto)
         {
             var produto = _mapper.Map<Produto>(produtoDto);
 
@@ -77,11 +77,11 @@ namespace ApiCatalogo.Controllers
 
             var produtoDTO = _mapper.Map<ProdutoDTO>(produto);
 
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.Id}, produtoDTO);
+            return new CreatedAtRouteResult("ObterProduto", new { id = produto.Id }, produtoDTO);
         }
 
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public ActionResult Put(int id, [FromBody] ProdutoDTO produtoDto)
         {
 
