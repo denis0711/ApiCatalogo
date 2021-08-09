@@ -1,5 +1,6 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.Models;
+using ApiCatalogo.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,13 @@ namespace ApiCatalogo.Repository
         {
 
         }
+
+        public PagedList<Categoria> GetCategoriasPaginas(CategoriasParameters categoriasParameters)
+        {
+            return PagedList<Categoria>.ToPagedList(Get().OrderBy(on => on.Nome),
+                categoriasParameters.PageNumber, categoriasParameters.PageSize);
+        }
+
         public IEnumerable<Categoria> GetCategoriasProdutos()
         {
             return Get().Include(x => x.Produtos);
