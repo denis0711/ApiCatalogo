@@ -17,15 +17,15 @@ namespace ApiCatalogo.Repository
 
         }
 
-        public PagedList<Categoria> GetCategoriasPaginas(CategoriasParameters categoriasParameters)
-        {
-            return PagedList<Categoria>.ToPagedList(Get().OrderBy(on => on.Nome),
+        public async Task<PagedList<Categoria>> GetCategoriasPaginas(CategoriasParameters categoriasParameters)
+        { 
+            return await  PagedList<Categoria>.ToPagedList(Get().OrderBy(on => on.Nome),
                 categoriasParameters.PageNumber, categoriasParameters.PageSize);
         }
 
-        public IEnumerable<Categoria> GetCategoriasProdutos()
+        public async Task<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
-            return Get().Include(x => x.Produtos);
-        }
+            return await  Get().Include(x => x.Produtos).ToListAsync();
+        } 
     }
 }

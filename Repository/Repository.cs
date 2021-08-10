@@ -30,10 +30,9 @@ namespace ApiCatalogo.Repository
         {
             return _meuDbContext.Set<T>().AsNoTracking();
         }
-
-        public T GetBydId(Expression<Func<T, bool>> predicate)
+        public async Task<T> GetBydId(Expression<Func<T, bool>> predicate)
         {
-            return _meuDbContext.Set<T>().SingleOrDefault(predicate);
+            return await _meuDbContext.Set<T>().AsNoTracking().SingleOrDefaultAsync(predicate);
         }
 
         public void Update(T entity)

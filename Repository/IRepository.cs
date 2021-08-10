@@ -9,7 +9,7 @@ namespace ApiCatalogo.Repository
     public interface IRepository<T> 
     {
         IQueryable<T> Get();
-        T GetBydId(Expression<Func<T, bool>> predicate);
+        Task<T> GetBydId(Expression<Func<T, bool>> predicate);
 
         void Add(T entity);
         void Update(T entity);

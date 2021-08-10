@@ -32,9 +32,9 @@ namespace ApiCatalogo.Repository
             _dbContext = context;
         }
 
-        public void Commit()
+        public async Task Commit()
         {
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         public void Dispose()
