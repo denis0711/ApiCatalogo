@@ -23,6 +23,8 @@ namespace ApiCatalogo.Models
         public string Descricao { get; set; }
 
         [Required]
+        [DataType(DataType.Currency)]
+        [Column(TypeName ="decimal(8,2")]
         public decimal Preco { get; set; }
 
         [Required]

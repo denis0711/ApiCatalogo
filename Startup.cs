@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCatalogo.Repository;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApiCatalogo
 {
@@ -32,6 +33,10 @@ namespace ApiCatalogo
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<MeuDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddDbContext<MeuDbContext>(options =>
             {
@@ -58,6 +63,8 @@ namespace ApiCatalogo
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
