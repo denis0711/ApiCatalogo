@@ -1,15 +1,15 @@
 ﻿using ApiCatalogo.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ApiCatalogo.Controllers
 {
@@ -32,17 +32,17 @@ namespace ApiCatalogo.Controllers
         [HttpGet]
         public ActionResult<string> Get()
         {
-            return "AutorizaController :: Acessando em : " +
-                DateTime.Now.ToLongDateString();
+            return "AutorizaController ::  Acessado em  : "
+               + DateTime.Now.ToLongDateString();
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> RegisterUser([FromBody]UsuarioDTO model)
+        public async Task<ActionResult> RegisterUser([FromBody] UsuarioDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values.SelectMany(e => e.Errors));
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState.Values.SelectMany(e => e.Errors));
+            //}
 
             var user = new IdentityUser
             {
@@ -61,13 +61,17 @@ namespace ApiCatalogo.Controllers
             await _signInManager.SignInAsync(user, false);
             return Ok(GeraToken(model));
         }
+
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] UsuarioDTO userInfo)
         {
-            //nao precisa ver se a modelState e valida se voce quiser
+            //verifica se o modelo é válido
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.Values.SelectMany(e => e.Errors));
+            }
 
-
-
+            //verifica as credenciais do usuário e retorna um valor
             var result = await _signInManager.PasswordSignInAsync(userInfo.Email,
                 userInfo.Password, isPersistent: false, lockoutOnFailure: false);
 
@@ -77,40 +81,38 @@ namespace ApiCatalogo.Controllers
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Login Invalido....");
+                ModelState.AddModelError(string.Empty, "Login Inválido....");
                 return BadRequest(ModelState);
             }
         }
 
-        private UsuarioToken GeraToken(UsuarioDTO user)
+        private UsuarioToken GeraToken(UsuarioDTO userInfo)
         {
-            //Define declaracoes do usuario( nao e obrigatorio)
+            //define declarações do usuário
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.Email),
-                new Claim("meuPet", "pipoca"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
+                 new Claim("meuPet", "pipoca"),
+                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+             };
 
             //gera uma chave com base em um algoritmo simetrico
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
             //gera a assinatura digital do token usando o algoritmo Hmac e a chave privada
-            var credencias = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-
-            //Tempo de expiracao do token.
+            //Tempo de expiracão do token.
             var expiracao = _configuration["TokenConfiguration:ExpireHours"];
             var expiration = DateTime.UtcNow.AddHours(double.Parse(expiracao));
 
-            //classe que representa um token JWT e gera o token
-
+            // classe que representa um token JWT e gera o token
             JwtSecurityToken token = new JwtSecurityToken(
-                    issuer: _configuration["TokenConfiguration:Issuer"],
-                    audience: _configuration["TokenConfiguration:Audience"],
-                    claims: claims,
-                    expires: expiration,
-                    signingCredentials: credencias
-                );
+              issuer: _configuration["TokenConfiguration:Issuer"],
+              audience: _configuration["TokenConfiguration:Audience"],
+              claims: claims,
+              expires: expiration,
+              signingCredentials: credenciais);
 
             //retorna os dados com o token e informacoes
             return new UsuarioToken()
@@ -120,9 +122,6 @@ namespace ApiCatalogo.Controllers
                 Expiration = expiration,
                 Message = "Token JWT OK"
             };
-
-
         }
-
     }
 }
