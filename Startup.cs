@@ -15,6 +15,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiCatalogo.Repository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ApiCatalogo
 {
@@ -34,14 +37,36 @@ namespace ApiCatalogo
 
             services.AddAutoMapper(typeof(Startup));
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<MeuDbContext>()
-                .AddDefaultTokenProviders();
+            
 
             services.AddDbContext<MeuDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<MeuDbContext>()
+                .AddDefaultTokenProviders();
+
+            /*
+             -JWT
+             -Adiciona o manipulador de autenticacao e define
+              o esquema de autenticacao usado : Bearer 
+             -Valida o emissor, a audiencia e a chave
+              usando a chave secreta e valida e assinatura
+            */
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidAudience = Configuration["TokenConfiguration:Audience"],
+                    ValidIssuer = Configuration["TokenConfiguration:Issuer"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]))
+                });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
