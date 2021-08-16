@@ -55,18 +55,20 @@ namespace ApiCatalogo
              -Valida o emissor, a audiencia e a chave
               usando a chave secreta e valida e assinatura
             */
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidAudience = Configuration["TokenConfiguration:Audience"],
-                    ValidIssuer = Configuration["TokenConfiguration:Issuer"],
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]))
-                });
+            services.AddAuthentication(
+          JwtBearerDefaults.AuthenticationScheme).
+          AddJwtBearer(options =>
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+               ValidateIssuer = true,
+               ValidateAudience = true,
+               ValidateLifetime = true,
+               ValidAudience = Configuration["TokenConfiguration:Audience"],
+               ValidIssuer = Configuration["TokenConfiguration:Issuer"],
+               ValidateIssuerSigningKey = true,
+               IssuerSigningKey = new SymmetricSecurityKey(
+                   Encoding.UTF8.GetBytes(Configuration["Jwt:key"]))
+           });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
